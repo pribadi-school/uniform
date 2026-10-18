@@ -69,3 +69,5 @@ next-env.d.ts
 /assets/
 
 /tmp/
+
+/release-out/
