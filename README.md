@@ -39,16 +39,16 @@ Database sengaja disimpan di luar folder aplikasi dan `public_html`, sehingga pe
 
 ## Hosting dengan Node.js (cPanel)
 
-1. Unggah atau `git clone` repositori ke folder di luar `public_html`, misalnya `~/seragam-app`.
-2. Di cPanel **Setup Node.js App** → *Create Application*: Node.js 22.13 atau lebih baru, mode *Production*, Application root `seragam-app`, Application URL domain/subdomain tujuan, Startup file `app.cjs`.
-3. Tambahkan variabel lingkungan `SERAGAM_PASSWORD` (dan `SERAGAM_ORIGIN` bila diperlukan), lalu simpan.
-4. Buka **Terminal** cPanel, aktifkan lingkungan Node.js (perintah `source ...` tertera di atas halaman aplikasi), lalu:
+GitHub yang membangun aplikasi, bukan cPanel. Setiap push ke `main` menjalankan **Build for cPanel** (GitHub Actions): pemeriksaan tipe, tes, build, lalu hasil siap pakai diterbitkan ke branch `deploy`. Aplikasi yang berjalan tidak membutuhkan paket npm, hanya Node.js 22.13+.
+
+Pemasangan pertama:
+
+1. Di Terminal cPanel, ambil branch `deploy` di luar `public_html`:
    ```sh
-   cd ~/seragam-app
-   npm ci --include=dev
-   npm run build
+   git clone -b deploy https://github.com/pribadi-school/uniform.git ~/repositories/uniform
    ```
-5. Klik **Restart** pada halaman aplikasi dan buka alamatnya.
+2. Di **Setup Node.js App** → *Create Application*: Node.js 22.13 atau lebih baru, mode *Production*, Application root `repositories/uniform`, Application URL domain/subdomain tujuan, Startup file `app.cjs`.
+3. Tambahkan variabel lingkungan `SERAGAM_ORIGIN` (alamat situs) dan, bila perlu, `SERAGAM_PASSWORD`, lalu simpan dan jalankan.
 
 Untuk pembaruan cukup satu perintah di Terminal:
 
@@ -56,7 +56,7 @@ Untuk pembaruan cukup satu perintah di Terminal:
 bash ~/repositories/uniform/update.sh
 ```
 
-Skrip ini mengaktifkan lingkungan Node.js, mengambil kode terbaru (`git pull`), memasang paket, membangun ulang, lalu memulai ulang aplikasi tanpa perlu klik Restart di cPanel. Data tetap di `~/seragam-data/inventory.sqlite`.
+Skrip ini mengambil versi terbaru yang sudah dibangun GitHub (`git pull`), lalu memulai ulang aplikasi. Tidak ada pemasangan paket atau build di cPanel. Data tetap di `~/seragam-data/inventory.sqlite`.
 
 ### Menyalin data dari Cloudflare
 
