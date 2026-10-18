@@ -1,0 +1,46 @@
+# Every push to main: check, test and build the app, then publish the ready-to-run files to the `deploy` branch.
+# The live site on cPanel then only needs: bash ~/repositories/uniform/update.sh
+name: Build for cPanel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# One build at a time, so deploy-branch pushes never race.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
+      # The current deploy branch, so the build can keep the previous version's files for pages already open.
+      - uses: actions/checkout@v4
+        with:
+          ref: deploy
+          path: release-out
+      - run: mkdir -p dist && cp -r release-out/dist/. dist/
+      - run: npm run build
+      - run: node scripts/package-release.mjs release-out
+      - name: Publish to the deploy branch
+        working-directory: release-out
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "Nothing changed."; exit 0; fi
+          git commit -m "Build ${GITHUB_SHA::7}: $(git -C .. log -1 --format=%s)"
+          git push origin HEAD:deploy
