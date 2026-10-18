@@ -1,0 +1,1 @@
+ALTER TABLE `history` ADD `staff_name` text DEFAULT '' NOT NULL;

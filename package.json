@@ -1,0 +1,8 @@
+{
+  "name": "pribadi-seragam",
+  "private": true,
+  "description": "Ready-built uniform app for cPanel. Needs Node.js 22.13+ and no npm packages.",
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}
